@@ -4,15 +4,13 @@ function init(){
     getOrderList();
 }
 
-// 訂單渲染
 let orderData=[];
 const orderList = document.querySelector(".js-orderList")
+//為什麼const config在這裡為失敗？放到config.js會成功？
+
+// 訂單渲染
 function getOrderList(){
-    axios.get(`https://livejs-api.hexschool.io/api/livejs/v1/admin/${api_path}/orders`,{
-        headers:{
-            "Authorization":token,
-        }
-    })
+    axios.get(`https://livejs-api.hexschool.io/api/livejs/v1/admin/${api_path}/orders`,config)
     .then(function (response) {
       orderData=response.data.orders;
       let str="";
@@ -27,7 +25,7 @@ function getOrderList(){
         })
         //判斷訂單處理狀態
         let orderStatus ="";
-        if(item.paid==true){
+        if(item.paid===true){
             orderStatus="已完成"
         }else{
             orderStatus="未處理"
@@ -49,7 +47,7 @@ function getOrderList(){
           <a href="#" class="js-orderStatus" data-status="${item.paid}" data-id="${item.id}">${orderStatus}</a>
         </td>
         <td>
-          <input type="button" class="delSingleOrder-Btn js-orderDelete" data-id="${item.id} value="刪除">
+          <input type="button" class="delSingleOrder-Btn js-orderDelete" data-id="${item.id}" value="刪除">
         </td>
     </tr>`
       })
@@ -67,7 +65,7 @@ function renderC3(){
   let total = {};
   orderData.forEach((item)=>{
     item.products.forEach((productsItem)=>{
-      if(total[productsItem.category]==undefined){
+      if(total[productsItem.category]===undefined){
         total[productsItem.category]=productsItem.price * productsItem.quantity;
       }else{
         total[productsItem.category]+=productsItem.price * productsItem.quantity;
@@ -103,12 +101,12 @@ orderList.addEventListener("click",(e)=>{
     e.preventDefault();
     const targetClass = e.target.getAttribute("class")
     let id = e.target.getAttribute("data-id");
-    if(targetClass=="js-orderStatus"){
+    if(targetClass==="js-orderStatus"){
       let status = e.target.getAttribute("data-status");
       changeOrderStatus(status,id);
       return
   };
-    if(targetClass=="delSingleOrder-Btn js-orderDelete"){
+    if(targetClass==="delSingleOrder-Btn js-orderDelete"){
       deleteOrder(id);
       return
   };
@@ -116,7 +114,7 @@ orderList.addEventListener("click",(e)=>{
 
 function changeOrderStatus(status,id){
   let newStatus;
-  if(status==true){
+  if(status=="true"){
     newStatus=false
   }else{
     newStatus=true
@@ -126,11 +124,7 @@ function changeOrderStatus(status,id){
       "id": id,
       "paid": newStatus
     }
-  },{
-    headers:{
-        "Authorization":token,
-    }
-})
+  },config)
 .then(function(response){
     alert("訂單已處理完成");
     getOrderList();
@@ -139,11 +133,7 @@ function changeOrderStatus(status,id){
 }
 
 function deleteOrder(id){
-  axios.delete(`https://livejs-api.hexschool.io/api/livejs/v1/admin/${api_path}/orders/${id}`,{
-        headers:{
-            "Authorization":token,
-        }
-    })
+  axios.delete(`https://livejs-api.hexschool.io/api/livejs/v1/admin/${api_path}/orders/${id}`,config)
     .then(function (response) {
       alert("該筆訂單刪除成功")
       getOrderList();
@@ -156,11 +146,7 @@ discardAllBtn.addEventListener("click",(e)=>{
   e.preventDefault();
   let deleteClass = e.target.getAttribute("class")
   if(deleteClass=="discardAllBtn"){
-    axios.delete(`https://livejs-api.hexschool.io/api/livejs/v1/admin/${api_path}/orders`,{
-        headers:{
-            "Authorization":token,
-        }
-    })
+    axios.delete(`https://livejs-api.hexschool.io/api/livejs/v1/admin/${api_path}/orders`,config)
     .then(function (response) {
       alert("訂單已全數刪除")
       getOrderList();
